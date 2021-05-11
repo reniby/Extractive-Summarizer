@@ -72,61 +72,67 @@ def main():
 
 #----------------------------------------------------------------
 	print("part 1 finished")
-#def generateSum(sentences):
 	keeptrack = 0
 	sentence_score = {}
 	final = {}
 	similarity = {}
 	onevector = {}
 	twovector = {}
-	for i in frequency:
-		keeptrack+=1
-		similarity[i] = {}
-		for one in range(0, len(sentences[i])-1):#len(sentences[i])-2):
-			similarity[i][one] = {}
-			for two in range(one+1, len(sentences[i])): #len(sentences[i])-1):
-				if len(sentences[i][one].split(' '))>2 and len(sentences[i][two].split(' '))>2:
-					onevector[i] = []
-					twovector[i] = []
-					for word in word_tokenize(sentences[i][one]):
-						if word in tfidf[i]:
-							onevector[i].append(tfidf[i][word])
-							if word in word_tokenize(sentences[i][two]):
-								twovector[i].append(tfidf[i][word])
-							else:
-								twovector[i].append(0)
 
+	#if using for loop, erase this (lines 83-89)
+	count = 1
+	desiredEpisode = 2
+	for f in frequency:
+		if count == desiredEpisode:
+			i = f
+			break
+		count += 1
+	
+	#for i in frequency:
+	similarity[i] = {}
+	for one in range(0, len(sentences[i])-1):#len(sentences[i])-2):
+		similarity[i][one] = {}
+		for two in range(one+1, len(sentences[i])): #len(sentences[i])-1):
+			if len(sentences[i][one].split(' '))>2 and len(sentences[i][two].split(' '))>2:
+				onevector[i] = []
+				twovector[i] = []
+				for word in word_tokenize(sentences[i][one]):
+					if word in tfidf[i]:
+						onevector[i].append(tfidf[i][word])
+						if word in word_tokenize(sentences[i][two]):
+							twovector[i].append(tfidf[i][word])
 						else:
-							onevector[i].append(0)
 							twovector[i].append(0)
 
-					num = 0
-					oneden = 0
-					twoden = 0		
-					for elem in range(0, len(onevector[i])-1):
-						num += onevector[i][elem] * twovector[i][elem]
-						oneden += onevector[i][elem] * onevector[i][elem]
-						twoden += twovector[i][elem] * twovector[i][elem]
-					if num == 0:
-						similarity[i][one][two] = 0
 					else:
-						similarity[i][one][two] = num / (math.sqrt(oneden) * math.sqrt(twoden))
+						onevector[i].append(0)
+						twovector[i].append(0)
 
-		tempmax = {}
-		for m in range(0, len(similarity[i])):
-			tempmax[m] = 0
-			for n in range(m+1, len(similarity[i][m])+1):
-				if n in similarity[i][m]:
-					tempmax[m] += similarity[i][m][n]
+				num = 0
+				oneden = 0
+				twoden = 0		
+				for elem in range(0, len(onevector[i])-1):
+					num += onevector[i][elem] * twovector[i][elem]
+					oneden += onevector[i][elem] * onevector[i][elem]
+					twoden += twovector[i][elem] * twovector[i][elem]
+				if num == 0:
+					similarity[i][one][two] = 0
+				else:
+					similarity[i][one][two] = num / (math.sqrt(oneden) * math.sqrt(twoden))
 
-		finalsummary = ''
-		summary = heapq.nlargest(20, tempmax, key = tempmax.get)
-		for o in summary:
-			finalsummary += sentences[i][o] + " "
-		final[i] = "SUMMARY:\n " + finalsummary
-		print("done " + str(keeptrack))
-		OUT.write(final[i] + "\n")
-		break
+	tempmax = {}
+	for m in range(0, len(similarity[i])):
+		tempmax[m] = 0
+		for n in range(m+1, len(similarity[i][m])+1):
+			if n in similarity[i][m]:
+				tempmax[m] += similarity[i][m][n]
+
+	finalsummary = ''
+	summary = heapq.nlargest(20, tempmax, key = tempmax.get)
+	for o in summary:
+		finalsummary += sentences[i][o] + " "
+	final[i] = "SUMMARY:\n " + finalsummary
+	OUT.write(final[i] + "\n")
 
 #----------------------------------------------------------------
 
